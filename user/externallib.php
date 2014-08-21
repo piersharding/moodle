@@ -507,6 +507,9 @@ class core_user_external extends external_api {
             $cleanedvalues[] = $cleanedvalue;
         }
 
+        // build the return field list
+        $complete_fields = self::user_description()->keys;
+
         // Retrieve the users.
         $users = $DB->get_records_list('user', $field, $cleanedvalues, 'id');
 
@@ -518,6 +521,11 @@ class core_user_external extends external_api {
             // Return the user only if the searched field is returned.
             // Otherwise it means that the $USER was not allowed to search the returned user.
             if (!empty($userdetails) and !empty($userdetails[$field])) {
+                foreach ($complete_fields as $key => $value) {
+                    if (!isset($userdetails[$key])) {
+                        $userdetails[$key] = (get_class($value) == 'external_value' ? null : array());
+                    }
+                }
                 $returnedusers[] = $userdetails;
             }
         }
